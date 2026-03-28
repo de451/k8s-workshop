@@ -37,7 +37,7 @@ kubectl describe namespace workshop
 ```
 
 ## Cleanup
-
+ถ้าจะลบ namespace ใช้คำสั่งนี้ แต่ยังไม่ต้องลบ เพราะเราจะใช้ต่อ
 ```bash
 kubectl delete -f 00-namespace/
 # หมายเหตุ: การลบ namespace จะลบ resource ทุกตัวใน namespace ด้วย
