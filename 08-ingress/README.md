@@ -6,7 +6,7 @@
 ## Files
 - `deployment.yaml` — Deployment ชื่อ `workshop-web`
 - `service.yaml` — ClusterIP Service ชื่อ `workshop-web-svc`
-- `ingress.yaml` — Ingress rule สำหรับ host `workshop.local`
+- `ingress.yaml` — Ingress rule สำหรับ host `web.localhost`
 
 ## ความต่างจาก Service NodePort/LoadBalancer
 
@@ -40,33 +40,19 @@ kubectl get ingress -w
 
 ## Test
 
-### วิธีที่ 1: แก้ /etc/hosts (แนะนำ)
+`web.localhost` resolve ไปที่ `127.0.0.1` โดยอัตโนมัติบนทุก OS ไม่ต้องแก้ `/etc/hosts`
+
+### เปิดผ่าน Browser
+
+เปิด **http://web.localhost** (k3d) หรือ **http://web.localhost:8080** ถ้าใช้ port อื่น
+
+### ทดสอบด้วย curl
 
 ```bash
-# หา IP ของ Ingress Controller
-# k3d: ใช้ 127.0.0.1 (ถ้าสร้าง cluster ด้วย --port flag)
-# minikube: ใช้ $(minikube ip)
-# kind: ใช้ localhost หรือ node IP
+curl http://web.localhost
 
-# เพิ่มบรรทัดนี้ใน /etc/hosts
-echo "127.0.0.1 workshop.local" | sudo tee -a /etc/hosts
-
-# ทดสอบ
-curl http://workshop.local
-# ถ้า k3d ใช้ port 8080: curl http://workshop.local:8080
-```
-
-### วิธีที่ 2: ใช้ curl ด้วย Host header (ไม่ต้องแก้ hosts)
-
-```bash
-# หา CLUSTER_IP ของ Ingress Controller
-INGRESS_IP=$(kubectl get svc -n ingress-nginx ingress-nginx-controller \
-  -o jsonpath='{.status.loadBalancer.ingress[0].ip}' 2>/dev/null || echo "127.0.0.1")
-
-curl -H "Host: workshop.local" http://$INGRESS_IP
-
-# k3d ทดสอบด้วย
-curl -H "Host: workshop.local" http://localhost:8080
+# ถ้า curl ไม่ได้ (บาง OS ไม่ resolve .localhost อัตโนมัติ) ให้ใช้ --resolve แทน
+curl --resolve web.localhost:80:127.0.0.1 http://web.localhost
 ```
 
 ### ทดสอบ Load Balancing ผ่าน Ingress
@@ -74,7 +60,7 @@ curl -H "Host: workshop.local" http://localhost:8080
 ```bash
 # รัน curl หลายครั้ง สังเกต Pod hostname ที่ต่างกัน
 for i in $(seq 1 6); do
-  curl -s -H "Host: workshop.local" http://localhost:8080 | grep "Pod:"
+  curl -s --resolve web.localhost:80:127.0.0.1 http://web.localhost | grep "Pod:"
 done
 ```
 
@@ -82,11 +68,11 @@ done
 
 ```bash
 kubectl delete -f 08-ingress/
-# ลบบรรทัด workshop.local ออกจาก /etc/hosts ถ้าเพิ่มไว้
 ```
 
 ## Key Takeaways
 - Ingress ต้องมี **Ingress Controller** (nginx, traefik, etc.) ถึงจะทำงานได้
 - Ingress ทำ L7 routing ตาม **host** และ **path**
+- `*.localhost` resolve เป็น `127.0.0.1` อัตโนมัติ เหมาะสำหรับ local development
 - หลาย Ingress rule ใช้ Ingress Controller เดียวกัน (ประหยัด LoadBalancer)
 - `ingressClassName` ระบุว่าใช้ controller ไหน ถ้ามีหลายตัว

@@ -12,7 +12,8 @@ spec:
   # ingressClassName: nginx         # uncomment ถ้า cluster ต้องการ explicit class
   rules:
   # Host-based routing: request ที่มี Host: workshop.local จะถูก route มาที่ service นี้
-  - host: workshop.local
+  # *.localhost resolve ไปที่ 127.0.0.1 โดยอัตโนมัติ ไม่ต้องแก้ /etc/hosts
+  - host: web.localhost
     http:
       paths:
       - path: /
