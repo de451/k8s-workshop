@@ -59,7 +59,7 @@ spec:
           </body>
           </html>
           EOF
-          echo 'add_header Cache-Control "no-store, no-cache, must-revalidate";
-add_header Pragma no-cache;
-add_header Expires 0;' > /etc/nginx/conf.d/no-cache.conf
+          echo 'add_header Cache-Control "no-store, no-cache, must-revalidate";' >  /etc/nginx/conf.d/no-cache.conf
+          echo 'add_header Pragma no-cache;'                                     >> /etc/nginx/conf.d/no-cache.conf
+          echo 'add_header Expires 0;'                                           >> /etc/nginx/conf.d/no-cache.conf
           nginx -g "daemon off;"
