@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: workshop-probe-svc
+  namespace: workshop
+  labels:
+    app: workshop-probe
+spec:
+  type: ClusterIP
+  selector:
+    app: workshop-probe
+  ports:
+  - name: http
+    port: 80
+    targetPort: 80

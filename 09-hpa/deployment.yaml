@@ -1,0 +1,30 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: workshop-hpa-app
+  namespace: workshop
+  labels:
+    app: workshop-hpa-app
+spec:
+  replicas: 1                       # เริ่มต้นที่ 1 replica แล้วให้ HPA scale
+  selector:
+    matchLabels:
+      app: workshop-hpa-app
+  template:
+    metadata:
+      labels:
+        app: workshop-hpa-app
+    spec:
+      containers:
+      - name: app
+        # Official k8s HPA example: PHP app ที่ generate CPU load ได้
+        image: registry.k8s.io/hpa-example
+        ports:
+        - containerPort: 80
+        resources:
+          requests:
+            cpu: 200m               # HPA ใช้ค่านี้คำนวณ % การใช้งาน
+            memory: 64Mi
+          limits:
+            cpu: 500m
+            memory: 128Mi

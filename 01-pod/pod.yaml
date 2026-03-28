@@ -1,0 +1,20 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: workshop-web
+  namespace: workshop
+  labels:
+    app: workshop-web
+spec:
+  containers:
+  - name: web
+    image: nginx:1.25-alpine       # lightweight web server, ~20MB
+    ports:
+    - containerPort: 80             # port ที่ nginx listen อยู่ภายใน container
+    resources:
+      requests:
+        cpu: 50m
+        memory: 64Mi
+      limits:
+        cpu: 100m
+        memory: 128Mi

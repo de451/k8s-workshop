@@ -1,0 +1,24 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: workshop-ingress
+  namespace: workshop
+  labels:
+    app: workshop-web
+  annotations:
+    # ระบุ ingress class สำหรับ nginx ingress controller
+    nginx.ingress.kubernetes.io/rewrite-target: /
+spec:
+  # ingressClassName: nginx         # uncomment ถ้า cluster ต้องการ explicit class
+  rules:
+  # Host-based routing: request ที่มี Host: workshop.local จะถูก route มาที่ service นี้
+  - host: workshop.local
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: workshop-web-svc
+            port:
+              number: 80

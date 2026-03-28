@@ -1,0 +1,18 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: workshop-web-svc
+  namespace: workshop
+  labels:
+    app: workshop-web
+spec:
+  # ClusterIP: accessible ภายใน cluster เท่านั้น
+  # ทางเลือกอื่น: NodePort, LoadBalancer
+  type: ClusterIP
+  selector:
+    app: workshop-web               # จับ Pod ที่มี label app=workshop-web
+  ports:
+  - name: http
+    port: 80                        # port ที่ Service รับ traffic
+    targetPort: 80                  # port ที่ส่งต่อไปยัง Pod
+    protocol: TCP

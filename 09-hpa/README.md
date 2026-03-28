@@ -1,0 +1,80 @@
+# Lab 09 — HorizontalPodAutoscaler (HPA)
+
+## Objective
+เรียนรู้ **HPA** ที่ scale จำนวน Pod อัตโนมัติตาม CPU utilization
+
+## Files
+- `deployment.yaml` — Deployment ของ PHP app พร้อม resource requests/limits
+- `service.yaml` — ClusterIP Service
+- `hpa.yaml` — HPA ที่ scale ระหว่าง 1–5 replicas เมื่อ CPU เกิน 50%
+- `load-generator.yaml` — Pod busybox ที่ส่ง request ซ้ำๆ เพื่อสร้าง load
+
+> **Prerequisites:** cluster ต้องมี Metrics Server
+> ตรวจสอบ: `kubectl top nodes` ต้องได้ผลออกมา
+
+## Apply
+
+```bash
+# Apply deployment และ HPA ก่อน (ยังไม่ apply load-generator)
+kubectl apply -f 09-hpa/deployment.yaml
+kubectl apply -f 09-hpa/service.yaml
+kubectl apply -f 09-hpa/hpa.yaml
+```
+
+## Verify
+
+```bash
+# ดู HPA (TARGETS จะแสดง current CPU / target CPU)
+kubectl get hpa workshop-hpa -n workshop
+
+# ดู pods (เริ่มต้น 1 replica)
+kubectl get pods -n workshop -l app=workshop-hpa-app
+
+# ดู resource usage (รอสักครู่ให้ metrics เก็บข้อมูล)
+kubectl top pods -n workshop -l app=workshop-hpa-app
+```
+
+## Test — สร้าง Load เพื่อดู Scale Up
+
+```bash
+# Step 1: เปิด terminal แยก แล้ว watch HPA
+kubectl get hpa workshop-hpa -n workshop -w
+
+# Step 2: เปิดอีก terminal แล้ว apply load-generator
+kubectl apply -f 09-hpa/load-generator.yaml
+
+# Step 3: รอสักครู่ (1-2 นาที) แล้วดู HPA scale up
+# REPLICAS จะเพิ่มจาก 1 → 2, 3, ... (สูงสุด 5)
+kubectl get pods -n workshop -l app=workshop-hpa-app -w
+```
+
+### ดู Scale Down
+
+```bash
+# ลบ load-generator เพื่อหยุด load
+kubectl delete pod load-generator -n workshop
+
+# HPA จะ scale down กลับภายใน ~5 นาที (default cool-down period)
+kubectl get hpa workshop-hpa -n workshop -w
+```
+
+### ดูรายละเอียด HPA
+
+```bash
+kubectl describe hpa workshop-hpa -n workshop
+# ดู events: scale up/down history
+```
+
+## Cleanup
+
+```bash
+kubectl delete -f 09-hpa/
+```
+
+## Key Takeaways
+- HPA ต้องการ **Metrics Server** เพื่ออ่าน CPU/Memory ของ Pod
+- **resource.requests** ต้องกำหนดเสมอ ไม่เช่นนั้น HPA คำนวณ % ไม่ได้
+- Scale up เร็วกว่า scale down (ป้องกัน thrashing)
+- HPA ทำงานร่วมกับ Deployment/StatefulSet/ReplicaSet
+- `minReplicas` และ `maxReplicas` เป็น safety boundary สำคัญ
+- HPA v2 รองรับ custom metrics นอกจาก CPU/Memory ได้ด้วย

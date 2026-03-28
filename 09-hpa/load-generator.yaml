@@ -1,0 +1,30 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: load-generator
+  namespace: workshop
+  labels:
+    app: load-generator
+spec:
+  # restartPolicy: Never ทำให้ pod หยุดเมื่อ command จบ
+  # ใช้ restart: Always ถ้าต้องการให้ generate load ต่อเนื่อง
+  restartPolicy: Always
+  containers:
+  - name: load
+    image: busybox:1.36
+    # ส่ง request ซ้ำๆ ไปยัง service เพื่อสร้าง CPU load
+    command:
+    - sh
+    - -c
+    - |
+      echo "Starting load generator..."
+      while true; do
+        wget -q -O- http://workshop-hpa-svc.workshop.svc.cluster.local > /dev/null
+      done
+    resources:
+      requests:
+        cpu: 10m
+        memory: 16Mi
+      limits:
+        cpu: 100m
+        memory: 32Mi

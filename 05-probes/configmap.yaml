@@ -1,0 +1,31 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: workshop-probe-config
+  namespace: workshop
+  labels:
+    app: workshop-probe
+data:
+  # nginx config ที่เพิ่ม /healthz และ /ready endpoints
+  default.conf: |
+    server {
+        listen 80;
+
+        # Main application
+        location / {
+            root   /usr/share/nginx/html;
+            index  index.html;
+        }
+
+        # Liveness probe endpoint: ตรวจว่า process ยังทำงานอยู่
+        location /healthz {
+            return 200 'OK\n';
+            add_header Content-Type text/plain;
+        }
+
+        # Readiness probe endpoint: ตรวจว่าพร้อมรับ traffic
+        location /ready {
+            return 200 'READY\n';
+            add_header Content-Type text/plain;
+        }
+    }

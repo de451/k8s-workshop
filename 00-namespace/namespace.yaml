@@ -1,0 +1,7 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: workshop
+  labels:
+    # Label ใช้สำหรับ identify namespace ของ workshop
+    purpose: k8s-workshop

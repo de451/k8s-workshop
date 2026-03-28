@@ -1,0 +1,16 @@
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: workshop-data-pvc
+  namespace: workshop
+  labels:
+    app: workshop-storage
+spec:
+  # ใช้ StorageClass default ของ cluster
+  # k3d/kind/minikube มี default StorageClass อยู่แล้ว (dynamic provisioning)
+  accessModes:
+  - ReadWriteOnce                   # mount ได้ครั้งละ 1 node
+  resources:
+    requests:
+      storage: 1Gi                  # ขอ storage 1GB
+  # storageClassName: ""            # uncomment เพื่อระบุ StorageClass เฉพาะ

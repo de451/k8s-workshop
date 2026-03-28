@@ -1,0 +1,54 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: workshop-web
+  namespace: workshop
+  labels:
+    app: workshop-stateful
+spec:
+  # serviceName ต้องอ้างอิง headless service
+  serviceName: workshop-web-headless
+  replicas: 3
+  selector:
+    matchLabels:
+      app: workshop-stateful
+  template:
+    metadata:
+      labels:
+        app: workshop-stateful
+    spec:
+      containers:
+      - name: web
+        image: nginx:1.25-alpine
+        ports:
+        - containerPort: 80
+        resources:
+          requests:
+            cpu: 50m
+            memory: 64Mi
+          limits:
+            cpu: 100m
+            memory: 128Mi
+        # สร้าง index.html ที่บอก Pod identity (hostname)
+        # แสดงให้เห็นว่า Pod แต่ละตัวมีชื่อ stable เช่น workshop-web-0
+        command:
+        - sh
+        - -c
+        - |
+          echo "<h1>Pod: $HOSTNAME</h1>" > /usr/share/nginx/html/index.html
+          nginx -g "daemon off;"
+        volumeMounts:
+        - name: data
+          mountPath: /data          # mount persistent storage ของ pod นี้โดยเฉพาะ
+
+  # volumeClaimTemplates: สร้าง PVC แยกให้ Pod แต่ละตัวอัตโนมัติ
+  # ชื่อ PVC จะเป็น: data-workshop-web-0, data-workshop-web-1, ...
+  volumeClaimTemplates:
+  - metadata:
+      name: data
+    spec:
+      accessModes:
+      - ReadWriteOnce
+      resources:
+        requests:
+          storage: 256Mi

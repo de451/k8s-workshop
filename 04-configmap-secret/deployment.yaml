@@ -1,0 +1,65 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: workshop-web
+  namespace: workshop
+  labels:
+    app: workshop-web
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: workshop-web
+  template:
+    metadata:
+      labels:
+        app: workshop-web
+    spec:
+      containers:
+      - name: web
+        image: nginx:1.25-alpine
+        ports:
+        - containerPort: 80
+        resources:
+          requests:
+            cpu: 50m
+            memory: 64Mi
+          limits:
+            cpu: 100m
+            memory: 128Mi
+
+        # วิธีที่ 1: inject ค่าจาก ConfigMap เป็น env vars
+        env:
+        - name: APP_ENV
+          valueFrom:
+            configMapKeyRef:
+              name: workshop-web-config
+              key: APP_ENV
+        - name: APP_COLOR
+          valueFrom:
+            configMapKeyRef:
+              name: workshop-web-config
+              key: APP_COLOR
+
+        # วิธีที่ 2: inject ค่าจาก Secret เป็น env vars
+        - name: DB_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: workshop-web-secret
+              key: DB_PASSWORD
+        - name: API_KEY
+          valueFrom:
+            secretKeyRef:
+              name: workshop-web-secret
+              key: API_KEY
+
+        volumeMounts:
+        # วิธีที่ 3: mount ConfigMap เป็น file
+        - name: html-volume
+          mountPath: /usr/share/nginx/html/index.html
+          subPath: index.html          # mount เฉพาะ key นี้เป็นไฟล์เดียว
+
+      volumes:
+      - name: html-volume
+        configMap:
+          name: workshop-web-config

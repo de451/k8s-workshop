@@ -1,0 +1,59 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: workshop-probe
+  namespace: workshop
+  labels:
+    app: workshop-probe
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: workshop-probe
+  template:
+    metadata:
+      labels:
+        app: workshop-probe
+    spec:
+      containers:
+      - name: web
+        image: nginx:1.25-alpine
+        ports:
+        - containerPort: 80
+        resources:
+          requests:
+            cpu: 50m
+            memory: 64Mi
+          limits:
+            cpu: 100m
+            memory: 128Mi
+
+        # Liveness Probe: ถ้า fail → container จะถูก restart
+        # คำถาม: "container ยังมีชีวิตอยู่ไหม?"
+        livenessProbe:
+          httpGet:
+            path: /healthz
+            port: 80
+          initialDelaySeconds: 5    # รอ 5 วิก่อนเริ่ม probe (ให้ app เริ่มก่อน)
+          periodSeconds: 10          # probe ทุก 10 วิ
+          failureThreshold: 3        # fail 3 ครั้งติดกันจึง restart
+
+        # Readiness Probe: ถ้า fail → Pod ถูกเอาออกจาก Service endpoints
+        # คำถาม: "container พร้อมรับ traffic ไหม?"
+        readinessProbe:
+          httpGet:
+            path: /ready
+            port: 80
+          initialDelaySeconds: 3    # รอสั้นกว่า liveness
+          periodSeconds: 5
+          failureThreshold: 3
+
+        volumeMounts:
+        - name: nginx-config
+          mountPath: /etc/nginx/conf.d/default.conf
+          subPath: default.conf
+
+      volumes:
+      - name: nginx-config
+        configMap:
+          name: workshop-probe-config

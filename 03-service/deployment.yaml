@@ -1,0 +1,29 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: workshop-web
+  namespace: workshop
+  labels:
+    app: workshop-web
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: workshop-web
+  template:
+    metadata:
+      labels:
+        app: workshop-web           # Service จะใช้ label นี้ในการค้นหา Pod
+    spec:
+      containers:
+      - name: web
+        image: nginx:1.25-alpine
+        ports:
+        - containerPort: 80
+        resources:
+          requests:
+            cpu: 50m
+            memory: 64Mi
+          limits:
+            cpu: 100m
+            memory: 128Mi

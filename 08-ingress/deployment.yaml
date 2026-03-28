@@ -1,0 +1,37 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: workshop-web
+  namespace: workshop
+  labels:
+    app: workshop-web
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: workshop-web
+  template:
+    metadata:
+      labels:
+        app: workshop-web
+    spec:
+      containers:
+      - name: web
+        image: nginx:1.25-alpine
+        ports:
+        - containerPort: 80
+        # สร้างหน้า HTML แสดง hostname เพื่อดูว่า request ไปถึง pod ไหน
+        command:
+        - sh
+        - -c
+        - |
+          echo "<h1>Workshop Ingress Demo</h1><p>Pod: $HOSTNAME</p>" \
+            > /usr/share/nginx/html/index.html
+          nginx -g "daemon off;"
+        resources:
+          requests:
+            cpu: 50m
+            memory: 64Mi
+          limits:
+            cpu: 100m
+            memory: 128Mi

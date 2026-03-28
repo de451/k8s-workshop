@@ -1,0 +1,37 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: workshop-storage
+  namespace: workshop
+  labels:
+    app: workshop-storage
+spec:
+  containers:
+  - name: writer
+    image: busybox:1.36
+    # เขียนไฟล์ลงใน volume ทุก 5 วิ แล้วแสดงผล
+    command:
+    - sh
+    - -c
+    - |
+      echo "Starting writer..."
+      while true; do
+        echo "$(date): Hello from PVC" >> /data/workshop.log
+        echo "Written at $(date)"
+        sleep 5
+      done
+    resources:
+      requests:
+        cpu: 10m
+        memory: 16Mi
+      limits:
+        cpu: 50m
+        memory: 32Mi
+    volumeMounts:
+    - name: data-volume
+      mountPath: /data              # mount point ภายใน container
+
+  volumes:
+  - name: data-volume
+    persistentVolumeClaim:
+      claimName: workshop-data-pvc  # อ้างอิง PVC ที่สร้างไว้
