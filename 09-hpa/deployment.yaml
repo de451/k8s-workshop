@@ -30,7 +30,7 @@ spec:
           import math
           class Handler(BaseHTTPRequestHandler):
               def do_GET(self):
-                  x = sum(math.sqrt(i) for i in range(500000))
+                  x = sum(math.sqrt(i) for i in range(50000))
                   self.send_response(200)
                   self.end_headers()
                   self.wfile.write(b'OK\n')

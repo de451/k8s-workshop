@@ -21,3 +21,17 @@ spec:
       target:
         type: Utilization
         averageUtilization: 50      # scale up ถ้า CPU เฉลี่ยเกิน 50%
+
+  behavior:
+    scaleUp:
+      stabilizationWindowSeconds: 15  # รอ 15 วิให้ metrics นิ่งก่อนตัดสินใจ scale
+      policies:
+      - type: Pods
+        value: 1                      # scale up ครั้งละ 1 pod เท่านั้น
+        periodSeconds: 10             # scale ได้ทุก 10 วิ
+    scaleDown:
+      stabilizationWindowSeconds: 15  # รอ 15 วิก่อน scale down (ป้องกัน flapping)
+      policies:
+      - type: Pods
+        value: 1                      # scale down ครั้งละ 1 pod เท่านั้น
+        periodSeconds: 10
