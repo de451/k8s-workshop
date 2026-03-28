@@ -60,8 +60,6 @@ kubectl rollout undo deployment/workshop-web
 ```
 
 ## Cleanup
-
-ถ้าต้องการลบทุกอย่างออกหมด ให้ใช้คำสั่งนี้ แต่เราจะยังไม่ลบ เพราะจะใช้ deployment นี้ต่อในแล็ป 03-service
 ```bash
 kubectl delete -f 02-deployment/
 ```

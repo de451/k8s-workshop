@@ -28,3 +28,38 @@ spec:
           limits:
             cpu: 100m
             memory: 128Mi
+        # สร้าง HTML ที่แสดง hostname ของ pod ตัวเอง
+        # ทำให้เห็นได้ชัดว่า Service กระจาย request ไปยัง pod ต่างๆ
+        command:
+        - sh
+        - -c
+        - |
+          cat <<EOF > /usr/share/nginx/html/index.html
+          <!DOCTYPE html>
+          <html>
+          <head>
+            <meta charset="UTF-8">
+            <title>Workshop Service Lab</title>
+            <style>
+              body { font-family: sans-serif; display: flex; justify-content: center;
+                     align-items: center; height: 100vh; margin: 0; background: #f0f4f8; }
+              .card { background: white; border-radius: 8px; padding: 2rem 3rem;
+                      box-shadow: 0 2px 8px rgba(0,0,0,0.1); text-align: center; }
+              .pod  { font-size: 1.4rem; font-weight: bold; color: #2563eb; margin: 0.5rem 0; }
+              .hint { font-size: 0.85rem; color: #6b7280; margin-top: 1rem; }
+            </style>
+          </head>
+          <body>
+            <div class="card">
+              <h2>🌐 Workshop — Lab 03: Service</h2>
+              <p>Request นี้ถูก route มาที่</p>
+              <p class="pod">Pod: $HOSTNAME</p>
+              <p class="hint">ลอง reload หน้านี้ดู — Service จะสลับ Pod ให้อัตโนมัติ</p>
+            </div>
+          </body>
+          </html>
+          EOF
+          echo 'add_header Cache-Control "no-store, no-cache, must-revalidate";
+add_header Pragma no-cache;
+add_header Expires 0;' > /etc/nginx/conf.d/no-cache.conf
+          nginx -g "daemon off;"

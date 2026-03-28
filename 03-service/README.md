@@ -4,7 +4,7 @@
 เรียนรู้ **Service** ที่ทำหน้าที่เป็น stable endpoint สำหรับเข้าถึง Pod — แม้ Pod IP จะเปลี่ยนก็ตาม
 
 ## Files
-- `deployment.yaml` — Deployment ชื่อ `workshop-web` (2 replicas)
+- `deployment.yaml` — Deployment ชื่อ `workshop-web` (2 replicas) แต่ละ Pod แสดง hostname ตัวเอง
 - `service.yaml` — ClusterIP Service ชื่อ `workshop-web-svc`
 
 ## ทำไม Service จึงจำเป็น?
@@ -36,12 +36,36 @@ kubectl describe service workshop-web-svc
 
 ## Test
 
-```bash
-# เข้าถึง Service ผ่าน port-forward
-kubectl port-forward service/workshop-web-svc 8080:80
-# เปิดอีก terminal: curl http://localhost:8080
+### เปิดผ่าน Browser
 
-# ทดสอบ DNS resolution จากภายใน cluster
+```bash
+kubectl port-forward service/workshop-web-svc 8080:80
+```
+
+เปิด http://localhost:8080 จะเห็นหน้าเว็บแสดงชื่อ Pod ที่รับ request
+
+> **หมายเหตุ:** `port-forward` tunnel ตรงไปยัง Pod เดียว ไม่ผ่าน load balancing ของ Service
+> ชื่อ Pod จึงไม่สลับเมื่อ reload — ใช้วิธีถัดไปเพื่อเทส load balancing จริง
+
+### สังเกต Load Balancing จากภายใน Cluster
+
+```bash
+# รัน busybox แล้วยิง request ซ้ำ 10 ครั้งผ่าน Service
+kubectl run -it --rm lb-test --image=busybox:1.36 --restart=Never -- \
+  sh -c 'for i in $(seq 1 10); do wget -qO- http://workshop-web-svc.workshop.svc.cluster.local | grep "Pod:"; done'
+```
+
+ผลที่ควรเห็น — Pod สลับกันไปมา:
+```
+<p class="pod">Pod: workshop-web-xxx-aaa</p>
+<p class="pod">Pod: workshop-web-xxx-bbb</p>
+<p class="pod">Pod: workshop-web-xxx-aaa</p>
+...
+```
+
+### ทดสอบ DNS resolution จากภายใน cluster
+
+```bash
 kubectl run -it --rm debug --image=busybox:1.36 --restart=Never -- \
   wget -qO- http://workshop-web-svc.workshop.svc.cluster.local
 ```
