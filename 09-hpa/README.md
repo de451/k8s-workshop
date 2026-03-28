@@ -12,6 +12,60 @@
 > **Prerequisites:** cluster ต้องมี Metrics Server
 > ตรวจสอบ: `kubectl top nodes` ต้องได้ผลออกมา
 
+## ติดตั้ง Metrics Server
+
+### ตรวจสอบก่อนว่ามีแล้วหรือยัง
+
+```bash
+kubectl top nodes
+# ถ้าได้ข้อมูล CPU/Memory → พร้อมใช้งาน ข้ามขั้นตอนนี้ได้เลย
+```
+
+### k3d
+
+k3d bundle Metrics Server มาให้ในตัว ไม่ต้องติดตั้งเพิ่ม
+
+### minikube
+
+```bash
+minikube addons enable metrics-server
+```
+
+### kind
+
+```bash
+# ติดตั้ง Metrics Server
+kubectl apply -f https://github.com/kubernetes-sigs/metrics-server/releases/latest/download/components.yaml
+
+# kind ใช้ self-signed cert ต้องเพิ่ม --kubelet-insecure-tls
+kubectl patch deployment metrics-server -n kube-system \
+  --type=json \
+  -p='[{"op":"add","path":"/spec/template/spec/containers/0/args/-","value":"--kubelet-insecure-tls"}]'
+```
+
+### k3s
+
+```bash
+# k3s มี Metrics Server เป็น addon ติดตั้งด้วย flag ตอนสร้าง cluster
+# ถ้ายังไม่มีให้ติดตั้งเหมือน kind ข้างบน
+kubectl apply -f https://github.com/kubernetes-sigs/metrics-server/releases/latest/download/components.yaml
+
+kubectl patch deployment metrics-server -n kube-system \
+  --type=json \
+  -p='[{"op":"add","path":"/spec/template/spec/containers/0/args/-","value":"--kubelet-insecure-tls"}]'
+```
+
+### ตรวจสอบหลังติดตั้ง
+
+```bash
+# รอ pod พร้อม
+kubectl rollout status deployment/metrics-server -n kube-system
+
+# ทดสอบ (อาจต้องรอ ~1 นาทีหลัง pod พร้อม)
+kubectl top nodes
+kubectl top pods
+```
+
 ## Apply
 
 ```bash
