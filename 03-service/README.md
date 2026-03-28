@@ -25,24 +25,24 @@ kubectl apply -f 03-service/
 
 ```bash
 # ดู service
-kubectl get service workshop-web-svc -n workshop
+kubectl get service workshop-web-svc
 
 # ดู endpoints (IP ของ Pods ที่ Service กำลัง load balance ถึง)
-kubectl get endpoints workshop-web-svc -n workshop
+kubectl get endpoints workshop-web-svc
 
 # ดูรายละเอียด
-kubectl describe service workshop-web-svc -n workshop
+kubectl describe service workshop-web-svc
 ```
 
 ## Test
 
 ```bash
 # เข้าถึง Service ผ่าน port-forward
-kubectl port-forward service/workshop-web-svc 8080:80 -n workshop
+kubectl port-forward service/workshop-web-svc 8080:80
 # เปิดอีก terminal: curl http://localhost:8080
 
 # ทดสอบ DNS resolution จากภายใน cluster
-kubectl run -it --rm debug --image=busybox:1.36 --restart=Never -n workshop -- \
+kubectl run -it --rm debug --image=busybox:1.36 --restart=Never -- \
   wget -qO- http://workshop-web-svc.workshop.svc.cluster.local
 ```
 

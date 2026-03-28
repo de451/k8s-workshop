@@ -27,13 +27,13 @@ kubectl apply -f 07-statefulset/
 
 ```bash
 # ดู pods (สังเกต name: workshop-web-0, -1, -2)
-kubectl get pods -n workshop -l app=workshop-stateful
+kubectl get pods -l app=workshop-stateful
 
 # ดู PVC ที่ถูกสร้างอัตโนมัติต่อ Pod
-kubectl get pvc -n workshop
+kubectl get pvc
 
 # ดู StatefulSet
-kubectl get statefulset workshop-web -n workshop
+kubectl get statefulset workshop-web
 ```
 
 ## Test
@@ -42,20 +42,20 @@ kubectl get statefulset workshop-web -n workshop
 
 ```bash
 # Pod แต่ละตัวรู้จัก hostname ตัวเอง
-kubectl exec workshop-web-0 -n workshop -- hostname   # workshop-web-0
-kubectl exec workshop-web-1 -n workshop -- hostname   # workshop-web-1
-kubectl exec workshop-web-2 -n workshop -- hostname   # workshop-web-2
+kubectl exec workshop-web-0 -- hostname   # workshop-web-0
+kubectl exec workshop-web-1 -- hostname   # workshop-web-1
+kubectl exec workshop-web-2 -- hostname   # workshop-web-2
 
 # ดู HTML ที่แต่ละ Pod แสดง (จะต่างกัน)
-kubectl exec workshop-web-0 -n workshop -- cat /usr/share/nginx/html/index.html
-kubectl exec workshop-web-1 -n workshop -- cat /usr/share/nginx/html/index.html
+kubectl exec workshop-web-0 -- cat /usr/share/nginx/html/index.html
+kubectl exec workshop-web-1 -- cat /usr/share/nginx/html/index.html
 ```
 
 ### DNS Resolution ต่อ Pod
 
 ```bash
 # แต่ละ Pod มี DNS ของตัวเอง: <pod-name>.<service-name>.<namespace>.svc.cluster.local
-kubectl run -it --rm debug --image=busybox:1.36 --restart=Never -n workshop -- \
+kubectl run -it --rm debug --image=busybox:1.36 --restart=Never -- \
   nslookup workshop-web-0.workshop-web-headless.workshop.svc.cluster.local
 ```
 
@@ -63,12 +63,12 @@ kubectl run -it --rm debug --image=busybox:1.36 --restart=Never -n workshop -- \
 
 ```bash
 # เขียนไฟล์ต่างกันใน Pod 0 และ Pod 1
-kubectl exec workshop-web-0 -n workshop -- sh -c "echo 'pod-0 data' > /data/test.txt"
-kubectl exec workshop-web-1 -n workshop -- sh -c "echo 'pod-1 data' > /data/test.txt"
+kubectl exec workshop-web-0 -- sh -c "echo 'pod-0 data' > /data/test.txt"
+kubectl exec workshop-web-1 -- sh -c "echo 'pod-1 data' > /data/test.txt"
 
 # ข้อมูลแยกกัน
-kubectl exec workshop-web-0 -n workshop -- cat /data/test.txt   # pod-0 data
-kubectl exec workshop-web-1 -n workshop -- cat /data/test.txt   # pod-1 data
+kubectl exec workshop-web-0 -- cat /data/test.txt   # pod-0 data
+kubectl exec workshop-web-1 -- cat /data/test.txt   # pod-1 data
 ```
 
 ## Cleanup
@@ -76,7 +76,7 @@ kubectl exec workshop-web-1 -n workshop -- cat /data/test.txt   # pod-1 data
 ```bash
 kubectl delete -f 07-statefulset/
 # PVC จาก volumeClaimTemplates ต้องลบแยก
-kubectl delete pvc -l app=workshop-stateful -n workshop
+kubectl delete pvc -l app=workshop-stateful
 ```
 
 ## Key Takeaways

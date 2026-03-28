@@ -16,26 +16,26 @@ kubectl apply -f 01-pod/
 
 ```bash
 # ดู pod ที่รันอยู่
-kubectl get pods -n workshop
+kubectl get pods
 
 # ดูรายละเอียด pod (events, conditions, IP)
-kubectl describe pod workshop-web -n workshop
+kubectl describe pod workshop-web
 
 # ดู logs จาก container
-kubectl logs workshop-web -n workshop
+kubectl logs workshop-web
 
 # ติดตาม logs แบบ real-time
-kubectl logs -f workshop-web -n workshop
+kubectl logs -f workshop-web
 ```
 
 ## Test
 
 ```bash
 # exec เข้าไปใน container
-kubectl exec -it workshop-web -n workshop -- sh
+kubectl exec -it workshop-web -- sh
 
 # ทดสอบ HTTP จาก port-forward (เปิด terminal อีกอัน)
-kubectl port-forward pod/workshop-web 8080:80 -n workshop
+kubectl port-forward pod/workshop-web 8080:80
 # จากนั้น: curl http://localhost:8080
 ```
 
@@ -44,7 +44,7 @@ kubectl port-forward pod/workshop-web 8080:80 -n workshop
 ```bash
 kubectl delete -f 01-pod/
 # หรือ
-kubectl delete pod workshop-web -n workshop
+kubectl delete pod workshop-web
 ```
 
 ## Key Takeaways

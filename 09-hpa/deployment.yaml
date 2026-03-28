@@ -20,7 +20,8 @@ spec:
         # Official k8s HPA example: PHP app ที่ generate CPU load ได้
         image: registry.k8s.io/hpa-example
         ports:
-        - containerPort: 80
+        - name: http              # ชื่อ port (ไม่บังคับ แต่ช่วยให้อ่านง่าย)
+          containerPort: 80
         resources:
           requests:
             cpu: 200m               # HPA ใช้ค่านี้คำนวณ % การใช้งาน

@@ -18,9 +18,9 @@ kubectl apply -f 04-configmap-secret/
 ## Verify
 
 ```bash
-kubectl get configmap workshop-web-config -n workshop
-kubectl get secret workshop-web-secret -n workshop
-kubectl get pods -n workshop -l app=workshop-web
+kubectl get configmap workshop-web-config
+kubectl get secret workshop-web-secret
+kubectl get pods -l app=workshop-web
 ```
 
 ## Test
@@ -29,7 +29,7 @@ kubectl get pods -n workshop -l app=workshop-web
 
 ```bash
 # ดู env ทั้งหมดใน container
-kubectl exec -it deploy/workshop-web -n workshop -- env | grep -E "APP_|DB_|API_"
+kubectl exec -it deploy/workshop-web -- env | grep -E "APP_|DB_|API_"
 
 # ผลที่ควรเห็น:
 # APP_ENV=production
@@ -42,10 +42,10 @@ kubectl exec -it deploy/workshop-web -n workshop -- env | grep -E "APP_|DB_|API_
 
 ```bash
 # ดู HTML file ที่ mount มาจาก ConfigMap
-kubectl exec -it deploy/workshop-web -n workshop -- cat /usr/share/nginx/html/index.html
+kubectl exec -it deploy/workshop-web -- cat /usr/share/nginx/html/index.html
 
 # ทดสอบ HTTP response
-kubectl port-forward service/workshop-web-svc 8080:80 -n workshop
+kubectl port-forward service/workshop-web-svc 8080:80
 # เปิดอีก terminal: curl http://localhost:8080
 ```
 
@@ -53,10 +53,10 @@ kubectl port-forward service/workshop-web-svc 8080:80 -n workshop
 
 ```bash
 # ดู Secret (ค่าจะถูก encode เป็น base64)
-kubectl get secret workshop-web-secret -n workshop -o yaml
+kubectl get secret workshop-web-secret -o yaml
 
 # decode ค่า
-kubectl get secret workshop-web-secret -n workshop \
+kubectl get secret workshop-web-secret \
   -o jsonpath='{.data.DB_PASSWORD}' | base64 -d
 ```
 

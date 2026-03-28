@@ -25,8 +25,8 @@ kubectl apply -f 05-probes/
 ## Verify
 
 ```bash
-kubectl get pods -n workshop -l app=workshop-probe
-kubectl describe pod -l app=workshop-probe -n workshop | grep -A 15 "Liveness\|Readiness"
+kubectl get pods -l app=workshop-probe
+kubectl describe pod -l app=workshop-probe | grep -A 15 "Liveness\|Readiness"
 ```
 
 ## Test
@@ -34,7 +34,7 @@ kubectl describe pod -l app=workshop-probe -n workshop | grep -A 15 "Liveness\|R
 ### ทดสอบ Probe Endpoints
 
 ```bash
-kubectl port-forward service/workshop-probe-svc 8080:80 -n workshop
+kubectl port-forward service/workshop-probe-svc 8080:80
 # เปิดอีก terminal:
 curl http://localhost:8080/healthz   # ควรได้ OK
 curl http://localhost:8080/ready     # ควรได้ READY
@@ -44,7 +44,7 @@ curl http://localhost:8080/ready     # ควรได้ READY
 
 ```bash
 # ดู events ของ pod
-kubectl describe pod -l app=workshop-probe -n workshop | tail -20
+kubectl describe pod -l app=workshop-probe | tail -20
 ```
 
 ### จำลอง Liveness Failure (optional demo)
@@ -52,16 +52,16 @@ kubectl describe pod -l app=workshop-probe -n workshop | tail -20
 ```bash
 # exec เข้า container แล้วลบ nginx binary เพื่อจำลอง crash
 # (ทำใน lab environment เท่านั้น)
-POD=$(kubectl get pod -l app=workshop-probe -n workshop -o jsonpath='{.items[0].metadata.name}')
+POD=$(kubectl get pod -l app=workshop-probe -o jsonpath='{.items[0].metadata.name}')
 
 # ดู restart count ก่อน
-kubectl get pod $POD -n workshop
+kubectl get pod $POD
 
 # ลบ nginx process (liveness จะ fail → container restart)
-kubectl exec $POD -n workshop -- nginx -s stop
+kubectl exec $POD -- nginx -s stop
 
 # ดู pod restart (RESTARTS จะเพิ่มขึ้น)
-kubectl get pod $POD -n workshop -w
+kubectl get pod $POD -w
 ```
 
 ## Cleanup

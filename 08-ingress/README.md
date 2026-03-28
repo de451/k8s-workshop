@@ -31,11 +31,11 @@ kubectl apply -f 08-ingress/
 ## Verify
 
 ```bash
-kubectl get ingress workshop-ingress -n workshop
-kubectl describe ingress workshop-ingress -n workshop
+kubectl get ingress workshop-ingress
+kubectl describe ingress workshop-ingress
 
 # ดู address ของ Ingress (อาจใช้เวลาสักครู่)
-kubectl get ingress -n workshop -w
+kubectl get ingress -w
 ```
 
 ## Test

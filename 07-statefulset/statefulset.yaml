@@ -21,7 +21,8 @@ spec:
       - name: web
         image: nginx:1.25-alpine
         ports:
-        - containerPort: 80
+        - name: http              # ชื่อ port (ไม่บังคับ แต่ช่วยให้อ่านง่าย)
+          containerPort: 80
         resources:
           requests:
             cpu: 50m

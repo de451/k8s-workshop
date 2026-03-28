@@ -10,7 +10,8 @@ spec:
   - name: web
     image: nginx:1.25-alpine       # lightweight web server, ~20MB
     ports:
-    - containerPort: 80             # port ที่ nginx listen อยู่ภายใน container
+    - name: http
+      containerPort: 80            # port ที่ nginx listen อยู่ภายใน container
     resources:
       requests:
         cpu: 50m

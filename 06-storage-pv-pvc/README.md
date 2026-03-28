@@ -28,21 +28,21 @@ kubectl apply -f 06-storage-pv-pvc/
 
 ```bash
 # ดู PVC status (ควรเป็น Bound)
-kubectl get pvc workshop-data-pvc -n workshop
+kubectl get pvc workshop-data-pvc
 
-# ดู PV ที่ถูกสร้างอัตโนมัติ
+# ดู PV ที่ถูกสร้างอัตโนมัติ (PV เป็น cluster-scoped ไม่มี namespace)
 kubectl get pv
 
 # ดู Pod
-kubectl get pod workshop-storage -n workshop
-kubectl logs workshop-storage -n workshop
+kubectl get pod workshop-storage
+kubectl logs workshop-storage
 ```
 
 ## Test
 
 ```bash
 # exec เข้า container แล้วดูไฟล์ที่เขียนลงใน PVC
-kubectl exec -it workshop-storage -n workshop -- sh
+kubectl exec -it workshop-storage -- sh
 
 # ภายใน container:
 ls /data
@@ -55,13 +55,13 @@ exit
 
 ```bash
 # ลบ Pod (แต่ไม่ลบ PVC)
-kubectl delete pod workshop-storage -n workshop
+kubectl delete pod workshop-storage
 
 # สร้าง Pod ใหม่
 kubectl apply -f 06-storage-pv-pvc/pod.yaml
 
 # ข้อมูลเดิมยังอยู่ใน PVC
-kubectl exec -it workshop-storage -n workshop -- cat /data/workshop.log
+kubectl exec -it workshop-storage -- cat /data/workshop.log
 ```
 
 ## Cleanup

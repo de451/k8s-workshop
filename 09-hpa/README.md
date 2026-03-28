@@ -25,43 +25,43 @@ kubectl apply -f 09-hpa/hpa.yaml
 
 ```bash
 # ดู HPA (TARGETS จะแสดง current CPU / target CPU)
-kubectl get hpa workshop-hpa -n workshop
+kubectl get hpa workshop-hpa
 
 # ดู pods (เริ่มต้น 1 replica)
-kubectl get pods -n workshop -l app=workshop-hpa-app
+kubectl get pods -l app=workshop-hpa-app
 
 # ดู resource usage (รอสักครู่ให้ metrics เก็บข้อมูล)
-kubectl top pods -n workshop -l app=workshop-hpa-app
+kubectl top pods -l app=workshop-hpa-app
 ```
 
 ## Test — สร้าง Load เพื่อดู Scale Up
 
 ```bash
 # Step 1: เปิด terminal แยก แล้ว watch HPA
-kubectl get hpa workshop-hpa -n workshop -w
+kubectl get hpa workshop-hpa -w
 
 # Step 2: เปิดอีก terminal แล้ว apply load-generator
 kubectl apply -f 09-hpa/load-generator.yaml
 
 # Step 3: รอสักครู่ (1-2 นาที) แล้วดู HPA scale up
 # REPLICAS จะเพิ่มจาก 1 → 2, 3, ... (สูงสุด 5)
-kubectl get pods -n workshop -l app=workshop-hpa-app -w
+kubectl get pods -l app=workshop-hpa-app -w
 ```
 
 ### ดู Scale Down
 
 ```bash
 # ลบ load-generator เพื่อหยุด load
-kubectl delete pod load-generator -n workshop
+kubectl delete pod load-generator
 
 # HPA จะ scale down กลับภายใน ~5 นาที (default cool-down period)
-kubectl get hpa workshop-hpa -n workshop -w
+kubectl get hpa workshop-hpa -w
 ```
 
 ### ดูรายละเอียด HPA
 
 ```bash
-kubectl describe hpa workshop-hpa -n workshop
+kubectl describe hpa workshop-hpa
 # ดู events: scale up/down history
 ```
 
