@@ -17,11 +17,25 @@ spec:
     spec:
       containers:
       - name: app
-        # Official k8s HPA example: PHP app ที่ generate CPU load ได้
-        image: registry.k8s.io/hpa-example
+        image: python:3.11-alpine   # multi-arch รองรับทั้ง amd64 และ arm64
         ports:
         - name: http              # ชื่อ port (ไม่บังคับ แต่ช่วยให้อ่านง่าย)
           containerPort: 80
+        # HTTP server ที่ burn CPU ต่อ request ด้วย sqrt loop
+        command:
+        - python3
+        - -c
+        - |
+          from http.server import HTTPServer, BaseHTTPRequestHandler
+          import math
+          class Handler(BaseHTTPRequestHandler):
+              def do_GET(self):
+                  x = sum(math.sqrt(i) for i in range(500000))
+                  self.send_response(200)
+                  self.end_headers()
+                  self.wfile.write(b'OK\n')
+              def log_message(self, *a): pass  # ปิด access log
+          HTTPServer(('', 80), Handler).serve_forever()
         resources:
           requests:
             cpu: 200m               # HPA ใช้ค่านี้คำนวณ % การใช้งาน

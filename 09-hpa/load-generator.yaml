@@ -17,14 +17,17 @@ spec:
     - sh
     - -c
     - |
-      echo "Starting load generator..."
-      while true; do
-        wget -q -O- http://workshop-hpa-svc.workshop.svc.cluster.local > /dev/null
+      echo "Starting load generator (5 parallel workers)..."
+      for i in 1 2 3 4 5; do
+        while true; do
+          wget -q -O- http://workshop-hpa-svc.workshop.svc.cluster.local > /dev/null
+        done &
       done
+      wait
     resources:
       requests:
-        cpu: 10m
+        cpu: 50m
         memory: 16Mi
       limits:
-        cpu: 100m
+        cpu: 200m
         memory: 32Mi

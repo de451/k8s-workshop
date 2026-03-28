@@ -4,7 +4,7 @@
 เรียนรู้ **HPA** ที่ scale จำนวน Pod อัตโนมัติตาม CPU utilization
 
 ## Files
-- `deployment.yaml` — Deployment ของ PHP app พร้อม resource requests/limits
+- `deployment.yaml` — Deployment ของ Python HTTP server ที่ burn CPU ต่อ request (รองรับ amd64 และ arm64)
 - `service.yaml` — ClusterIP Service
 - `hpa.yaml` — HPA ที่ scale ระหว่าง 1–5 replicas เมื่อ CPU เกิน 50%
 - `load-generator.yaml` — Pod busybox ที่ส่ง request ซ้ำๆ เพื่อสร้าง load
