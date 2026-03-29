@@ -40,15 +40,10 @@ k3d cluster create workshop \
   --servers 1 \
   --agents 2 \
   --port "80:80@loadbalancer" \
-  --port "443:443@loadbalancer" \
-  --k3s-arg "--kube-controller-manager-arg=node-monitor-grace-period=30s@server:*" \
-  --k3s-arg "--kube-apiserver-arg=default-not-ready-toleration-seconds=30@server:*" \
-  --k3s-arg "--kube-apiserver-arg=default-unreachable-toleration-seconds=30@server:*" \
-  --k3s-arg "--node-taint=node-role.kubernetes.io/control-plane=true:NoSchedule@server:*"
+  --port "443:443@loadbalancer" 
 
 kubectl get nodes
 ```
---k3s-arg ต่างๆข้างบนเป็น optional เพื่อให้ timeput สั้น เหมาะกับการเดโม ไม่ได้จำเป็นกับการใช้งานปกติ 
 
 ดูคำแนะนำการติดตั้งและ commands ทั้งหมดได้ที่ [K3D.md](./K3D.md)
 

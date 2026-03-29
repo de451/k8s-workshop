@@ -103,6 +103,7 @@ k3d cluster create workshop \
   --k3s-arg "--kube-apiserver-arg=default-unreachable-toleration-seconds=30@server:*" \
   --k3s-arg "--node-taint=node-role.kubernetes.io/control-plane=true:NoSchedule@server:*"
 ```
+--k3s-arg ต่างๆข้างบนเป็น optional config ที่มีผลกับข้างใน เพื่อให้ timeout สั้น ลดเวลาที่ต้องรอ เพื่อให้เหมาะกับการเดโม ไม่ได้จำเป็นกับการใช้งานปกติ 
 
 | Flag | ความหมาย |
 |---|---|
