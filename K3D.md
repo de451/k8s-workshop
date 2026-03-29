@@ -97,7 +97,11 @@ k3d cluster create workshop \
   --servers 1 \
   --agents 2 \
   --port "80:80@loadbalancer" \
-  --port "443:443@loadbalancer"
+  --port "443:443@loadbalancer" \
+  --k3s-arg "--kube-controller-manager-arg=node-monitor-grace-period=30s@server:*" \
+  --k3s-arg "--kube-apiserver-arg=default-not-ready-toleration-seconds=30@server:*" \
+  --k3s-arg "--kube-apiserver-arg=default-unreachable-toleration-seconds=30@server:*" \
+  --k3s-arg "--node-taint=node-role.kubernetes.io/control-plane=true:NoSchedule@server:*"
 ```
 
 | Flag | ความหมาย |
@@ -105,6 +109,13 @@ k3d cluster create workshop \
 | `--servers 1` | จำนวน **Server node** (control plane) |
 | `--agents 2` | จำนวน **Agent node** (worker) |
 | `--port "80:80@loadbalancer"` | map port 80 ของเครื่องเข้า LoadBalancer ของ cluster (ใช้ใน lab 08) |
+
+| k3s Flag | ความหมาย |
+|---|---|
+| `--node-taint=...NoSchedule@server:*` | ป้องกัน workload pod ถูก schedule มาที่ server node |
+| `node-monitor-grace-period=30s` | รอ 30 วิก่อนตัดสินว่า node ตายจริง (default 40s) |
+| `default-not-ready-toleration-seconds=30` | pod ทนรอได้ 30 วิเมื่อ node NotReady ก่อนถูก evict (default 300s) |
+| `default-unreachable-toleration-seconds=30` | pod ทนรอได้ 30 วิเมื่อ node Unreachable ก่อนถูก evict (default 300s) |
 
 ### Server vs Agent คืออะไร?
 
