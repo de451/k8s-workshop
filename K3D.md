@@ -5,6 +5,8 @@
 **k3d** เป็น wrapper ที่รัน **k3s** (Kubernetes แบบ lightweight ของ Rancher) อยู่ใน Docker container
 ทำให้สร้าง Kubernetes cluster บนเครื่อง local ได้ในไม่กี่วินาที โดยไม่ต้องติดตั้ง VM
 
+> เว็บไซต์หลัก: https://k3d.io
+
 ```
 นักพัฒนา  →  k3d CLI  →  Docker containers  →  k3s cluster
 ```
@@ -49,6 +51,8 @@ curl -s https://raw.githubusercontent.com/k3d-io/k3d/main/install.sh | bash
 choco install k3d
 ```
 
+> Windows แนะนำใช้ผ่าน **WSL2** เพื่อประสิทธิภาพที่ดีกว่า
+
 ### ตรวจสอบการติดตั้ง
 
 ```bash
@@ -72,6 +76,12 @@ curl -LO "https://dl.k8s.io/release/$(curl -Ls https://dl.k8s.io/release/stable.
 chmod +x kubectl && sudo mv kubectl /usr/local/bin/
 ```
 
+### Windows (PowerShell)
+
+```powershell
+choco install kubernetes-cli
+```
+
 ### ตรวจสอบ
 
 ```bash
@@ -84,11 +94,46 @@ kubectl version --client
 
 ```bash
 k3d cluster create workshop \
+  --servers 1 \
+  --agents 2 \
   --port "80:80@loadbalancer" \
   --port "443:443@loadbalancer"
 ```
 
-- `--port "80:80@loadbalancer"` — map port 80 ของเครื่องเข้า LoadBalancer ของ cluster (ใช้ใน lab 08)
+| Flag | ความหมาย |
+|---|---|
+| `--servers 1` | จำนวน **Server node** (control plane) |
+| `--agents 2` | จำนวน **Agent node** (worker) |
+| `--port "80:80@loadbalancer"` | map port 80 ของเครื่องเข้า LoadBalancer ของ cluster (ใช้ใน lab 08) |
+
+### Server vs Agent คืออะไร?
+
+Kubernetes แบ่ง node ออกเป็น 2 บทบาท:
+
+**Server (Control Plane)**
+- สมองของ cluster — ตัดสินใจว่า Pod จะรันที่ node ไหน
+- รัน component หลัก ได้แก่ `kube-apiserver`, `etcd`, `kube-scheduler`, `kube-controller-manager`
+- ใน production มักมีหลาย server เพื่อ high availability
+- ใน workshop นี้ใช้ 1 server ก็เพียงพอ
+
+**Agent (Worker Node)**
+- แรงงานของ cluster — รับ Pod มาจาก Server แล้วรันจริง
+- รัน `kubelet` และ `container runtime` (containerd)
+- Pod ของ workload ทั้งหมดจะถูก schedule มาที่ agent node
+- ยิ่งมีหลาย agent ยิ่งรัน Pod ได้มากขึ้นและกระจาย workload ได้
+
+```
+┌─────────────────────────────────────────────┐
+│                  k3d cluster                │
+│                                             │
+│  ┌──────────────┐    ┌───────┐  ┌───────┐   │
+│  │    Server    │    │ Agent │  │ Agent │   │
+│  │ (control     │───▶│  01   │  │  02   │   │
+│  │   plane)     │    │       │  │       │   │
+│  └──────────────┘    └───────┘  └───────┘   │
+│     API สั่งงาน              Pod รันที่นี่         │
+└─────────────────────────────────────────────┘
+```
 
 ตรวจสอบ cluster พร้อมใช้งาน:
 
@@ -137,45 +182,53 @@ kubectl config use-context k3d-workshop
 ### Namespace
 
 ```bash
-kubectl apply -f 00-namespace/
-kubectl config set-context --current --namespace=workshop
+kubectl apply -f 00-namespace/                              # สร้าง namespace workshop
+kubectl config set-context --current --namespace=workshop   # ตั้ง default namespace
 ```
 
 ### ดู Resource
 
 ```bash
-kubectl get pods
-kubectl get pods -w                        # watch real-time
-kubectl get all                            # ดูทุก resource
-kubectl describe pod <name>
-kubectl logs <pod-name>
-kubectl logs -f <pod-name>                 # follow logs
+kubectl get pods                              # ดู pods ใน current namespace
+kubectl get pods -w                           # ดู pods แบบ real-time (watch)
+kubectl get pods -A                           # ดู pods ทุก namespace
+kubectl get all                               # ดูทุก resource ใน namespace
+kubectl get nodes                             # ดู nodes ทั้งหมดใน cluster
+kubectl describe pod <name>                   # ดูรายละเอียด + events ของ pod
+kubectl logs <pod-name>                       # ดู logs ของ container
+kubectl logs -f <pod-name>                    # ติดตาม logs แบบ real-time
+kubectl logs <pod-name> --previous            # ดู logs ของ container ที่ crash ไปแล้ว
 ```
 
 ### แก้ไข / Scale
 
 ```bash
-kubectl apply -f <file-or-dir>
-kubectl delete -f <file-or-dir>
-kubectl scale deployment <name> --replicas=3
-kubectl rollout restart deployment <name>
+kubectl apply -f <file-or-dir>                # สร้างหรืออัปเดต resource จากไฟล์
+kubectl delete -f <file-or-dir>               # ลบ resource ตามไฟล์
+kubectl scale deployment <name> --replicas=3  # ปรับจำนวน replicas
+kubectl rollout restart deployment <name>     # restart pods ทั้งหมดใน deployment
+kubectl rollout status deployment <name>      # ดูสถานะการ deploy
+kubectl rollout undo deployment <name>        # rollback ไป version ก่อนหน้า
 ```
 
 ### Debug
 
 ```bash
-kubectl exec -it <pod-name> -- sh          # เข้า shell ใน container
-kubectl port-forward pod/<name> 8080:80    # forward port มาที่เครื่อง
-kubectl port-forward service/<name> 8080:80
-kubectl run -it --rm debug --image=busybox:1.36 --restart=Never -- sh
+kubectl exec -it <pod-name> -- sh             # เข้า shell ใน container
+kubectl exec -it <pod-name> -- env            # ดู environment variables ใน container
+kubectl port-forward pod/<name> 8080:80       # forward port จาก pod มาที่เครื่อง
+kubectl port-forward service/<name> 8080:80   # forward port จาก service มาที่เครื่อง
+kubectl run -it --rm debug \
+  --image=busybox:1.36 --restart=Never -- sh  # รัน pod ชั่วคราวสำหรับ debug
+kubectl cp <pod-name>:/path/to/file ./file    # copy ไฟล์ออกจาก container
 ```
 
 ### Events และ Resource Usage
 
 ```bash
-kubectl get events --sort-by='.lastTimestamp'
-kubectl top nodes
-kubectl top pods
+kubectl get events --sort-by='.lastTimestamp' # ดู events เรียงตามเวลา
+kubectl top nodes                             # ดู CPU/Memory ของแต่ละ node
+kubectl top pods                              # ดู CPU/Memory ของแต่ละ pod
 ```
 
 ---
