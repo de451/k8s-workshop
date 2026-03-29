@@ -6,7 +6,7 @@
 ## Files
 - `deployment.yaml` — Deployment ชื่อ `workshop-web`
 - `service.yaml` — ClusterIP Service ชื่อ `workshop-web-svc`
-- `ingress.yaml` — Ingress rule สำหรับ host `web.localhost`
+- `ingress.yaml` — Ingress rule สำหรับ host `my.de451.cloud`
 
 ## ความต่างจาก Service NodePort/LoadBalancer
 
@@ -40,27 +40,23 @@ kubectl get ingress -w
 
 ## Test
 
-`web.localhost` resolve ไปที่ `127.0.0.1` โดยอัตโนมัติบนทุก OS ไม่ต้องแก้ `/etc/hosts`
+`my.de451.cloud` ถูกตั้งค่าใช้ resolve ไปที่ `127.0.0.1` อยู่แล้ว เราจะใช้ประโยชน์จาก domain นี้
 
 ### เปิดผ่าน Browser
 
-เปิด **http://web.localhost** (k3d) หรือ **http://web.localhost:8080** ถ้าใช้ port อื่น
+เปิด **http://my.de451.cloud**
 
 ### ทดสอบด้วย curl
 
 ```bash
-curl http://web.localhost
-
-# ถ้า curl ไม่ได้ (บาง OS ไม่ resolve .localhost อัตโนมัติ) ให้ใช้ --resolve แทน
-curl --resolve web.localhost:80:127.0.0.1 http://web.localhost
+curl http://my.de451.cloud
 ```
 
 ### ทดสอบ Load Balancing ผ่าน Ingress
 
 ```bash
-# รัน curl หลายครั้ง สังเกต Pod hostname ที่ต่างกัน
 for i in $(seq 1 6); do
-  curl -s --resolve web.localhost:80:127.0.0.1 http://web.localhost | grep "Pod:"
+  curl -s http://my.de451.cloud | grep "Pod:"
 done
 ```
 
@@ -73,6 +69,6 @@ kubectl delete -f 08-ingress/
 ## Key Takeaways
 - Ingress ต้องมี **Ingress Controller** (nginx, traefik, etc.) ถึงจะทำงานได้
 - Ingress ทำ L7 routing ตาม **host** และ **path**
-- `*.localhost` resolve เป็น `127.0.0.1` อัตโนมัติ เหมาะสำหรับ local development
+- `*.localhost` ก็ resolve เป็น `127.0.0.1` อัตโนมัติ เหมาะสำหรับ local development ใช้ได้กับ browser แต่บาง client อาจใช้ไม่ได้ เช่น curl
 - หลาย Ingress rule ใช้ Ingress Controller เดียวกัน (ประหยัด LoadBalancer)
 - `ingressClassName` ระบุว่าใช้ controller ไหน ถ้ามีหลายตัว
