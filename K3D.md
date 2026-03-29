@@ -5,10 +5,8 @@
 **k3d** เป็น wrapper ที่รัน **k3s** (Kubernetes แบบ lightweight ของ Rancher) อยู่ใน Docker container
 ทำให้สร้าง Kubernetes cluster บนเครื่อง local ได้ในไม่กี่วินาที โดยไม่ต้องติดตั้ง VM
 
-> เว็บไซต์หลัก: https://k3d.io
-
 ```
-นักพัฒนา  →  k3d CLI  →  Docker containers  →  k3s cluster
+ผู้ใช้  →  k3d CLI  →  Docker containers  →  k3s cluster
 ```
 
 **จุดเด่น:**
@@ -16,6 +14,8 @@
 - รัน multi-node cluster บนเครื่องเดียว
 - มี Ingress Controller (Traefik) และ LoadBalancer ในตัว
 - เหมาะสำหรับ local development และ workshop
+
+> เว็บไซต์หลัก: https://k3d.io
 
 ---
 
@@ -164,15 +164,23 @@ k3d cluster delete workshop
 
 ### จัดการ kubeconfig
 
+`k3d cluster create` จะ merge kubeconfig และ switch context ให้อัตโนมัติ ไม่ต้องทำเพิ่ม
+
+ถ้ามี cluster อื่นอยู่แล้ว (เช่น EKS, GKE, cluster อื่นของ k3d) ก็ไม่มีปัญหา — k3d จะ merge context ของ `workshop` เข้าไปใน `~/.kube/config` โดยไม่กระทบ context เดิม
+
 ```bash
-# merge kubeconfig ของ cluster เข้า ~/.kube/config (k3d ทำให้อัตโนมัติตอนสร้าง)
-k3d kubeconfig merge workshop --kubeconfig-switch-context
+# ดู context ทั้งหมดที่มี
+kubectl config get-contexts
 
-# ดู context ปัจจุบัน
-kubectl config current-context
+# ตรวจสอบว่า context ปัจจุบันชี้ถูก cluster
+kubectl config current-context   # ควรได้ k3d-workshop
 
-# สลับ context
+# สลับ context ระหว่าง cluster
 kubectl config use-context k3d-workshop
+kubectl config use-context <context-อื่น>
+
+# merge kubeconfig ด้วยตัวเองได้ ถ้าลืม merge หรือ kubeconfig หาย
+k3d kubeconfig merge workshop -d
 ```
 
 ---
