@@ -89,28 +89,54 @@ kubectl top nodes
 
 ## ลำดับการ Apply Labs
 
-```bash
-# เริ่มต้นที่ namespace ก่อนเสมอ
-kubectl apply -f 00-namespace/
+**Lab 00 ต้อง apply ก่อนเสมอ** และไม่ต้อง cleanup ระหว่าง workshop เพราะทุก lab ใช้ namespace `workshop` ร่วมกัน
 
-# จากนั้น apply ทีละ lab
+```bash
+# ขั้นตอนที่ 1: สร้าง namespace (ทำครั้งเดียวตอนเริ่ม)
+kubectl apply -f 00-namespace/
+kubectl config set-context --current --namespace=workshop
+
+# ขั้นตอนที่ 2: เรียน lab ทีละ lab
 kubectl apply -f 01-pod/
+# ... ทำกิจกรรม ...
+kubectl delete -f 01-pod/
+
 kubectl apply -f 02-deployment/
-# ...
+# ... ทำกิจกรรม ...
+kubectl delete -f 02-deployment/
+
+# ทำซ้ำจนครบทุก lab
+```
+
+แต่ละ lab apply แยกเดี่ยวได้ ไม่ต้องพึ่ง lab ก่อนหน้า
+
+---
+
+## Cleanup ระหว่าง Labs
+
+Cleanup ทีละ lab หลังจบกิจกรรมของ lab นั้น:
+
+```bash
+kubectl delete -f 01-pod/
+kubectl delete -f 02-deployment/
+kubectl delete -f 03-service/
+kubectl delete -f 04-configmap-secret/
+kubectl delete -f 05-probes/
+kubectl delete -f 06-storage-pv-pvc/
+kubectl delete -f 07-statefulset/
+kubectl delete pvc -l app=workshop-stateful   # PVC จาก volumeClaimTemplates ต้องลบแยก
+kubectl delete -f 08-ingress/
+kubectl delete -f 09-hpa/
 ```
 
 ---
 
-## Cleanup ทั้ง Workshop
+## Cleanup ปิดท้าย Workshop
+
+เมื่อจบ workshop ลบ namespace ทิ้งทั้งหมดในครั้งเดียว:
 
 ```bash
-# ลบทุก resource ใน namespace workshop
 kubectl delete namespace workshop
-
-# หรือลบทีละ lab (ย้อนหลังจาก lab หลังสุด)
-kubectl delete -f 09-hpa/
-kubectl delete -f 08-ingress/
-# ...
 ```
 
 ---
