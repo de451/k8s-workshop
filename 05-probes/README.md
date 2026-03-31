@@ -44,7 +44,7 @@ curl http://localhost:8080/ready     # ควรได้ READY
 
 ```bash
 # ดู events ของ pod
-kubectl describe pod -l app=workshop-probe | tail -20
+kubectl logs -f -l app=workshop-probe
 ```
 
 ### จำลอง Liveness Failure (optional demo)
