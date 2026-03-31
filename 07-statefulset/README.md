@@ -55,8 +55,7 @@ kubectl exec workshop-web-1 -- cat /usr/share/nginx/html/index.html
 
 ```bash
 # แต่ละ Pod มี DNS ของตัวเอง: <pod-name>.<service-name>.<namespace>.svc.cluster.local
-kubectl run -it --rm debug --image=busybox:1.36 --restart=Never -- \
-  nslookup workshop-web-0.workshop-web-headless.workshop.svc.cluster.local
+kubectl run -it --rm debug --image=busybox:1.36 --restart=Never -- nslookup workshop-web-0.workshop-web-headless.workshop.svc.cluster.local
 ```
 
 ### แยก PVC ต่อ Pod

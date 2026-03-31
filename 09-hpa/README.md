@@ -38,9 +38,7 @@ minikube addons enable metrics-server
 kubectl apply -f https://github.com/kubernetes-sigs/metrics-server/releases/latest/download/components.yaml
 
 # kind ใช้ self-signed cert ต้องเพิ่ม --kubelet-insecure-tls
-kubectl patch deployment metrics-server -n kube-system \
-  --type=json \
-  -p='[{"op":"add","path":"/spec/template/spec/containers/0/args/-","value":"--kubelet-insecure-tls"}]'
+kubectl patch deployment metrics-server -n kube-system --type=json -p='[{"op":"add","path":"/spec/template/spec/containers/0/args/-","value":"--kubelet-insecure-tls"}]'
 ```
 
 ### k3s
@@ -50,9 +48,7 @@ kubectl patch deployment metrics-server -n kube-system \
 # ถ้ายังไม่มีให้ติดตั้งเหมือน kind ข้างบน
 kubectl apply -f https://github.com/kubernetes-sigs/metrics-server/releases/latest/download/components.yaml
 
-kubectl patch deployment metrics-server -n kube-system \
-  --type=json \
-  -p='[{"op":"add","path":"/spec/template/spec/containers/0/args/-","value":"--kubelet-insecure-tls"}]'
+kubectl patch deployment metrics-server -n kube-system --type=json -p='[{"op":"add","path":"/spec/template/spec/containers/0/args/-","value":"--kubelet-insecure-tls"}]'
 ```
 
 ### ตรวจสอบหลังติดตั้ง

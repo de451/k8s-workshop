@@ -51,8 +51,7 @@ kubectl port-forward service/workshop-web-svc 8080:80
 
 ```bash
 # รัน busybox แล้วยิง request ซ้ำ 10 ครั้งผ่าน Service
-kubectl run -it --rm lb-test --image=busybox:1.36 --restart=Never -- \
-  sh -c 'for i in $(seq 1 10); do wget -qO- http://workshop-web-svc.workshop.svc.cluster.local | grep "Pod:"; done'
+kubectl run -it --rm lb-test --image=busybox:1.36 --restart=Never -- sh -c 'for i in $(seq 1 10); do wget -qO- http://workshop-web-svc.workshop.svc.cluster.local | grep "Pod:"; done'
 ```
 
 ผลที่ควรเห็น — Pod สลับกันไปมา:
@@ -66,8 +65,7 @@ kubectl run -it --rm lb-test --image=busybox:1.36 --restart=Never -- \
 ### ทดสอบ DNS resolution จากภายใน cluster
 
 ```bash
-kubectl run -it --rm debug --image=busybox:1.36 --restart=Never -- \
-  wget -qO- http://workshop-web-svc.workshop.svc.cluster.local
+kubectl run -it --rm debug --image=busybox:1.36 --restart=Never -- wget -qO- http://workshop-web-svc.workshop.svc.cluster.local
 ```
 
 ## Cleanup

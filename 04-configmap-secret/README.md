@@ -56,8 +56,7 @@ kubectl port-forward service/workshop-web-svc 8080:80
 kubectl get secret workshop-web-secret -o yaml
 
 # decode ค่า
-kubectl get secret workshop-web-secret \
-  -o jsonpath='{.data.DB_PASSWORD}' | base64 -d
+kubectl get secret workshop-web-secret -o jsonpath='{.data.DB_PASSWORD}' | base64 -d
 ```
 
 ## Cleanup

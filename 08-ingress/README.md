@@ -55,9 +55,7 @@ curl http://my.de451.cloud
 ### ทดสอบ Load Balancing ผ่าน Ingress
 
 ```bash
-for i in $(seq 1 6); do
-  curl -s http://my.de451.cloud | grep "Pod:"
-done
+for i in $(seq 1 6); do curl -s http://my.de451.cloud | grep "Pod:"; done
 ```
 
 ## Cleanup
