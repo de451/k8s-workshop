@@ -13,4 +13,4 @@ spec:
   resources:
     requests:
       storage: 1Gi                  # ขอ storage 1GB
-  # storageClassName: ""            # uncomment เพื่อระบุ StorageClass เฉพาะ
+  # storageClassName: "xxx"         # comment ไว้เพื่อใช้ค่า default , สามารถระบุชื่อ StorageClass ได้ที่นี่หากต้องการ
