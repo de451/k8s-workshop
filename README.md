@@ -37,7 +37,11 @@ Workshop นี้รันได้บน local Kubernetes cluster ทุกป
 ใน workshop นี้จะใช้ **k3d** ซึ่งเป็น wrapper ที่รัน k3s อยู่ใน Docker container สร้าง cluster ได้ในไม่กี่วินาที มี Ingress Controller และ LoadBalancer ในตัว ไม่ต้องติดตั้งเพิ่ม
 
 ```bash
-k3d cluster create workshop --servers 1 --agents 2 --port "80:80@loadbalancer" --port "443:443@loadbalancer"
+k3d cluster create workshop \
+  --servers 1 \
+  --agents 2 \
+  --port "80:80@loadbalancer" \
+  --port "443:443@loadbalancer"
 
 kubectl get nodes
 ```
